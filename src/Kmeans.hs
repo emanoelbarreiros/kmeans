@@ -39,14 +39,21 @@ kMeans i k points = kMeans' (i k points) points
 
 kMeans' :: Vectorizable e v => [v] -> [e] -> Float -> [v]
 kMeans' centroids points threshold =
-  let assignments     = clusterAssignmentPhase centroids points
-      oldNewCentroids = newCentroidPhase assignments
-      newCentroids    = map snd oldNewCentroids
+  let assignments = clusterAssignmentPhase centroids points
+      oldNewCentroids = newCentroidPhase assignments
+      newCentroids = map snd oldNewCentroids
   in if shouldStop oldNewCentroids threshold
-      then newCentroids
-      else kMeans' newCentroids points threshold
+      then newCentroids
+      else kMeans' newCentroids points threshold
 
 
 initializeSimple :: Int -> [e] -> [(Float, Float)]
 initializeSimple 0 _ = []
-initializeSimple n v = (fromIntegral n, fromIntegral n) : initializeSimple (n-1) v
+initializeSimple n v = (fromIntegral n*10, fromIntegral n*10) : initializeSimple (n-1) v
+
+stepKmeans :: [(Float,Float)] -> [(Float,Float)] -> Float -> ([(Float,Float)], Bool)
+stepKmeans centroids points threshold =
+  let assignments = clusterAssignmentPhase centroids points
+      oldNewCentroids = newCentroidPhase assignments
+      newCentroids = map snd oldNewCentroids
+  in (newCentroids, shouldStop oldNewCentroids threshold)
